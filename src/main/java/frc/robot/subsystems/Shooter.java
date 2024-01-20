@@ -22,7 +22,7 @@ public class Shooter extends SubsystemBase
 {
     private CANSparkMax m_flywheel = new CANSparkMax(DriveConstants.kFlywheelMotorPort, MotorType.kBrushless);
     private RelativeEncoder m_encoder = m_flywheel.getEncoder();
-    private CANSparkMax m_trigger_motor = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
+    private CANSparkMax m_triggerMotor = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
 
     public Shooter()
     {
@@ -31,20 +31,27 @@ public class Shooter extends SubsystemBase
 
   public void set(Double speed)
   {
-    m_trigger_motor.set(speed);
+    m_triggerMotor.set(speed);
     m_flywheel.set(speed);
   }
+  public double getTopMotorSpeed() {
+    return m_flywheel.getEncoder().getVelocity();
+}
+
+public double getBottomMotorSpeed() {
+    return m_triggerMotor.getEncoder().getVelocity();
+}
 
   public void stop()
   {
-    m_trigger_motor.stopMotor();
+    m_triggerMotor.stopMotor();
     m_flywheel.stopMotor();
   }
 
 
   public void intake()
   {
-    m_trigger_motor.set(0.25);
+    m_triggerMotor.set(0.25);
     m_flywheel.set(0.25);
   }
 
@@ -55,8 +62,12 @@ public class Shooter extends SubsystemBase
 
   public void shoot()
   {
-    m_trigger_motor.set(-1);
+    m_triggerMotor.set(-1);
   }
+  public void setMotorSpeed(double topSpeed, double bottomSpeed) {
+    m_flywheel.set(topSpeed);
+    m_triggerMotor.set(bottomSpeed);
+}
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() 
   {

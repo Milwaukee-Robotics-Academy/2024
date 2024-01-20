@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
@@ -76,9 +77,11 @@ public class RobotContainer {
   {
     // Connect the buttons to commands
     startFlywheel.onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
-    shootNote.onTrue(new InstantCommand(() -> m_shooter.shoot()));
+    shootNote.whileTrue(new Shoot(m_shooter));
     startIntake.onTrue(new InstantCommand(() -> m_shooter.intake()));
     stopFlywheel.onTrue(new InstantCommand(() -> m_shooter.stop()));
+    SmartDashboard.putNumber("LeftSparkMotor", 0.0);
+    SmartDashboard.putNumber("RightSparkMotor", 0.0);
   }
 
   /**
