@@ -30,9 +30,9 @@ public class Drivetrain extends SubsystemBase {
   // These include four drive motors, a left and right encoder and a gyro.
 
   private final CANSparkMax m_leftLeader = new CANSparkMax(DriveConstants.kLeftMotorPort1, MotorType.kBrushless);
-  private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftMotorPort2, MotorType.kBrushless);
+//  private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftMotorPort2, MotorType.kBrushless);
   private final CANSparkMax m_rightLeader = new CANSparkMax(DriveConstants.kRightMotorPort1, MotorType.kBrushless);
-  private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
+ // private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
   private RelativeEncoder m_leftEncoder;
   private RelativeEncoder m_rightEncoder;
 
@@ -53,11 +53,11 @@ public class Drivetrain extends SubsystemBase {
 
     m_leftLeader.restoreFactoryDefaults();
     m_rightLeader.restoreFactoryDefaults();
-    m_leftFollower.restoreFactoryDefaults();
-    m_rightFollower.restoreFactoryDefaults();
+    // m_leftFollower.restoreFactoryDefaults();
+    // m_rightFollower.restoreFactoryDefaults();
 
-    m_leftFollower.follow(m_leftLeader);
-    m_rightFollower.follow(m_rightLeader);
+    // m_leftFollower.follow(m_leftLeader);
+    // m_rightFollower.follow(m_rightLeader);
 
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's

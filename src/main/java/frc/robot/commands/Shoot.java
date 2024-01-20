@@ -26,12 +26,12 @@ public class Shoot extends Command {
         m_bottomMotorSpeed = MathUtil.clamp(SmartDashboard.getNumber("BottomShooterMotor", 0.0)/100, -1.0, 1.0); //Converts the inputted percentage
 
         m_shooter.setMotorSpeed(m_topMotorSpeed, m_bottomMotorSpeed);
+       // m_shooter.setMotorSpeed(1.0,1.0);
     }
 
     @Override
     public void execute() {
-        SmartDashboard.putNumber("FlywheelMotorSpeed", m_shooter.getTopMotorSpeed());
-        SmartDashboard.putNumber("TriggerMotorSpeed", m_shooter.getBottomMotorSpeed());
+
 
     }
 

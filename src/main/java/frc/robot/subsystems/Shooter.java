@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import frc.robot.Constants.DriveConstants;
@@ -21,11 +22,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase 
 {
     private CANSparkMax m_flywheel = new CANSparkMax(DriveConstants.kFlywheelMotorPort, MotorType.kBrushless);
-    private RelativeEncoder m_encoder = m_flywheel.getEncoder();
+    private RelativeEncoder m_flywheelEncoder = m_flywheel.getEncoder();
     private CANSparkMax m_triggerMotor = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
-
+    private RelativeEncoder m_triggerEncoder = m_flywheel.getEncoder();
     public Shooter()
     {
+      m_flywheel.restoreFactoryDefaults();
+      m_flywheel.setIdleMode(IdleMode.kCoast);
+      m_flywheel.setInverted(true);
+      m_triggerMotor.restoreFactoryDefaults();
+      m_triggerMotor.setIdleMode(IdleMode.kCoast);
+      m_triggerMotor.setInverted(true);
+      SmartDashboard.putNumber("FW-Encoder/speed",m_flywheelEncoder.getVelocity());
+      SmartDashboard.putNumber("FW-Encoder/distance",m_flywheelEncoder.getPosition());
+      SmartDashboard.putNumber("Trigger-Encoder/speed",m_flywheelEncoder.getVelocity());
+      SmartDashboard.putNumber("Trigger-Encoder/distance",m_flywheelEncoder.getPosition());
+
+
       this.stop();
     }
 
@@ -51,18 +64,18 @@ public double getBottomMotorSpeed() {
 
   public void intake()
   {
-    m_triggerMotor.set(0.25);
-    m_flywheel.set(0.25);
+    m_triggerMotor.set(-0.25);
+    m_flywheel.set(-0.25);
   }
 
   public void readyFlywheel()
   {
-    m_flywheel.set(-1);
+    m_flywheel.set(1);
   }
 
   public void shoot()
   {
-    m_triggerMotor.set(-1);
+    m_triggerMotor.set(1);
   }
   public void setMotorSpeed(double topSpeed, double bottomSpeed) {
     m_flywheel.set(topSpeed);
@@ -80,5 +93,7 @@ public double getBottomMotorSpeed() {
   public void periodic() 
   {
     log();
+    SmartDashboard.putNumber("FlywheelMotorSpeed", getTopMotorSpeed());
+    SmartDashboard.putNumber("TriggerMotorSpeed", getBottomMotorSpeed());
   }
 }

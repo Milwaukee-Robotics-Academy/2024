@@ -80,8 +80,8 @@ public class RobotContainer {
     shootNote.whileTrue(new Shoot(m_shooter));
     startIntake.onTrue(new InstantCommand(() -> m_shooter.intake()));
     stopFlywheel.onTrue(new InstantCommand(() -> m_shooter.stop()));
-    SmartDashboard.putNumber("LeftSparkMotor", 0.0);
-    SmartDashboard.putNumber("RightSparkMotor", 0.0);
+    SmartDashboard.putNumber("TopShooterMotor", 100.0);
+    SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
 
   /**
