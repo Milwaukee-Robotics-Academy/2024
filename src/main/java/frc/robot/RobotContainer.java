@@ -74,8 +74,6 @@ public class RobotContainer {
    */
   private void initializeShooterControls() {
     // Connect the buttons to commands
-
-    // startFlywheel.onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
