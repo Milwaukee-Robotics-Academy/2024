@@ -10,8 +10,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -28,11 +26,13 @@ public class Shooter extends SubsystemBase
     public Shooter()
     {
       m_flywheel.restoreFactoryDefaults();
+      m_flywheel.setSmartCurrentLimit(80);
       m_flywheel.setIdleMode(IdleMode.kCoast);
-      m_flywheel.setInverted(true);
+      m_flywheel.setInverted(false);
       m_triggerMotor.restoreFactoryDefaults();
+      m_triggerMotor.setSmartCurrentLimit(80);
       m_triggerMotor.setIdleMode(IdleMode.kCoast);
-      m_triggerMotor.setInverted(true);
+      m_triggerMotor.setInverted(false);
       SmartDashboard.putNumber("FW-Encoder/speed",m_flywheelEncoder.getVelocity());
       SmartDashboard.putNumber("FW-Encoder/distance",m_flywheelEncoder.getPosition());
       SmartDashboard.putNumber("Trigger-Encoder/speed",m_flywheelEncoder.getVelocity());

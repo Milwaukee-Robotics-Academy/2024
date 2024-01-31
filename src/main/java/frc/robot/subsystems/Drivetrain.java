@@ -67,9 +67,13 @@ public class Drivetrain extends SubsystemBase {
     SendableRegistry.addChild(m_drive, m_rightLeader);
 
     m_leftLeader.restoreFactoryDefaults();
+    m_leftLeader.setSmartCurrentLimit(80);
     m_rightLeader.restoreFactoryDefaults();
+    m_rightLeader .setSmartCurrentLimit(80);
     m_leftFollower.restoreFactoryDefaults();
+    m_leftFollower.setSmartCurrentLimit(80);
     m_rightFollower.restoreFactoryDefaults();
+    m_rightFollower.setSmartCurrentLimit(80);
 
     m_leftFollower.follow(m_leftLeader);
     m_rightFollower.follow(m_rightLeader);
