@@ -29,17 +29,7 @@ public class RobotContainer {
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Shooter m_shooter = new Shooter();
   // private final Joystick m_joystick = new Joystick(0);
-<<<<<<< HEAD
-  private final XboxController m_controller = new XboxController(0);
-  
-  private JoystickButton startFlywheel = new JoystickButton(m_controller, XboxController.Button.kX.value);
-  private JoystickButton shootNote = new JoystickButton(m_controller, XboxController.Button.kA.value);
-  private JoystickButton startIntake = new JoystickButton(m_controller, XboxController.Button.kY.value);
-  private JoystickButton stopFlywheel = new JoystickButton(m_controller, XboxController.Button.kB.value);
-=======
   private final CommandXboxController m_driver = new CommandXboxController(0);
-
->>>>>>> 710a60e8e0384937536b3b4daf7e5d30c53035f7
   private final Command m_autonomousCommand;
 
   /**
@@ -50,13 +40,7 @@ public class RobotContainer {
 
     // Assign default commands
     m_drivetrain.setDefaultCommand(
-<<<<<<< HEAD
         new TankDrive(() -> -m_controller.getLeftY(), () -> -m_controller.getRightY(), m_drivetrain));
-    
-=======
-        new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
-
->>>>>>> 710a60e8e0384937536b3b4daf7e5d30c53035f7
     m_autonomousCommand = new WaitCommand(1);
 
     // Show what command your subsystem is running on the SmartDashboard
@@ -79,11 +63,6 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Create some buttons
     initializeShooterControls();
-<<<<<<< HEAD
-    // configure driver controls
-=======
-
->>>>>>> 710a60e8e0384937536b3b4daf7e5d30c53035f7
   }
 
   /**
