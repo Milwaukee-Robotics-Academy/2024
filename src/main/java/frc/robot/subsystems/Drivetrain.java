@@ -32,7 +32,7 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkMax m_leftLeader = new CANSparkMax(DriveConstants.kLeftMotorPort1, MotorType.kBrushless);
   private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftMotorPort2, MotorType.kBrushless);
   private final CANSparkMax m_rightLeader = new CANSparkMax(DriveConstants.kRightMotorPort1, MotorType.kBrushless);
-  private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
+/ private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
   private RelativeEncoder m_leftEncoder;
   private RelativeEncoder m_rightEncoder;
 
@@ -52,9 +52,13 @@ public class Drivetrain extends SubsystemBase {
     SendableRegistry.addChild(m_drive, m_rightLeader);
 
     m_leftLeader.restoreFactoryDefaults();
+    m_leftLeader.setSmartCurrentLimit(80);
     m_rightLeader.restoreFactoryDefaults();
+    m_rightLeader .setSmartCurrentLimit(80);
     m_leftFollower.restoreFactoryDefaults();
+    m_leftFollower.setSmartCurrentLimit(80);
     m_rightFollower.restoreFactoryDefaults();
+    m_rightFollower.setSmartCurrentLimit(80);
 
     m_leftFollower.follow(m_leftLeader);
     m_rightFollower.follow(m_rightLeader);
