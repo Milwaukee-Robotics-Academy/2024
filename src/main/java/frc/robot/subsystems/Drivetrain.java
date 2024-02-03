@@ -99,8 +99,8 @@ public class Drivetrain extends SubsystemBase {
   /**
    * Tank style driving for the Drivetrain.
    *
-   * @param left  Speed in range [-1,1]
-   * @param right Speed in range [-1,1]
+   * @param left  Speed in range [-0.85,0.85]
+   * @param right Speed in range [-0.85,0.85]
    */
   public void drive(double left, double right) {
     m_drive.tankDrive(left, right);
