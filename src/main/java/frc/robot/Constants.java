@@ -12,8 +12,8 @@ public final class Constants {
     public static final int kRightMotorPort1 = 3;
     public static final int kRightMotorPort2 = 4;
 
-    public static final int kFlywheelMotorPort = 5;
-    public static final int kShooterMotorPort = 6;
+    public static final int kFlywheelMotorPort = 6;
+    public static final int kShooterMotorPort = 5;
 
     public static final int[] kLeftEncoderPorts = {0, 1};
     public static final int[] kRightEncoderPorts = {2, 3};

@@ -14,6 +14,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.TankDriveControls;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,7 +41,7 @@ public class RobotContainer {
 
     // Assign default commands
     m_drivetrain.setDefaultCommand(
-        new TankDrive(() -> -m_controller.getLeftY(), () -> -m_controller.getRightY(), m_drivetrain));
+        new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
     m_autonomousCommand = new WaitCommand(1);
 
     // Show what command your subsystem is running on the SmartDashboard
@@ -74,7 +75,7 @@ public class RobotContainer {
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
-
+    m_driver.a().onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
