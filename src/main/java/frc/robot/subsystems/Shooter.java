@@ -27,11 +27,11 @@ public class Shooter extends SubsystemBase
     {
       m_flywheel.restoreFactoryDefaults();
       m_flywheel.setSmartCurrentLimit(80);
-      m_flywheel.setIdleMode(IdleMode.kCoast);
+      m_flywheel.setIdleMode(IdleMode.kBrake);
       m_flywheel.setInverted(false);
       m_triggerMotor.restoreFactoryDefaults();
       m_triggerMotor.setSmartCurrentLimit(80);
-      m_triggerMotor.setIdleMode(IdleMode.kCoast);
+      m_triggerMotor.setIdleMode(IdleMode.kBrake);
       m_triggerMotor.setInverted(false);
       SmartDashboard.putNumber("FW-Encoder/speed",m_flywheelEncoder.getVelocity());
       SmartDashboard.putNumber("FW-Encoder/distance",m_flywheelEncoder.getPosition());
