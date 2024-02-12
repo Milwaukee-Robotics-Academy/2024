@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +17,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.TankDriveControls;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -58,6 +60,7 @@ public class RobotContainer {
     //             m_TurnLimiter.calculate(-m_driver.getRightX())),
     //         m_drivetrain));
 
+
     m_autonomousCommand = new WaitCommand(1);
 
     // Show what command your subsystem is running on the SmartDashboard
@@ -90,10 +93,10 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
 
-    // startFlywheel.onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
