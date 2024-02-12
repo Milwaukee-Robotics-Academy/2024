@@ -153,6 +153,11 @@ public class Drivetrain extends SubsystemBase {
     m_drive.tankDrive(left, right);
   }
 
+  /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
+   * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
+  public void arcadeDriveController(double speed, double rotation) {
+    m_drive.arcadeDrive(speed, rotation);
+
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(Constants.DriveConstants.kS,
       Constants.DriveConstants.kV, Constants.DriveConstants.kA);
 
@@ -176,6 +181,7 @@ public class Drivetrain extends SubsystemBase {
     m_rightLeader.setVoltage(
         m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
     m_drive.feed();
+
   }
 
   /**
