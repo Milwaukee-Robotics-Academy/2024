@@ -41,7 +41,7 @@ public class DriveStraight extends PIDCommand {
   public void initialize() {
     // Get everything in a safe starting state.
     m_drivetrain.resetEncoders();
-    m_drivetrain.resetOdometry(m_drivetrain.getPose());
+    m_drivetrain.resetPose(m_drivetrain.getPose());
     super.initialize();
   }
 

@@ -9,40 +9,55 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 public class Drivetrain extends SubsystemBase {
   // The Drivetrain subsystem incorporates the sensors and actuators attached to
   // the robots chassis.
   // These include four drive motors, a left and right encoder and a gyro.
 
-  private final CANSparkMax m_leftLeader = new CANSparkMax(DriveConstants.kLeftMotorPort1, MotorType.kBrushless);
-  private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftMotorPort2, MotorType.kBrushless);
-  private final CANSparkMax m_rightLeader = new CANSparkMax(DriveConstants.kRightMotorPort1, MotorType.kBrushless);
-  private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
+  private final CANSparkMax m_leftLeader = new CANSparkMax(DriveConstants.kLeftLeaderMotor, MotorType.kBrushless);
+  private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftFollowerMotor, MotorType.kBrushless);
+  private final CANSparkMax m_rightLeader = new CANSparkMax(DriveConstants.kRightLeaderMotor, MotorType.kBrushless);
+  private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightFollowerMotor, MotorType.kBrushless);
   private RelativeEncoder m_leftEncoder;
   private RelativeEncoder m_rightEncoder;
 
   private AHRS m_gyro;
   private Rotation2d m_gyroOffset = new Rotation2d();
 
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+      Constants.DriveConstants.kTrackwidthMeters);
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
 
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
+  private Field2d field = new Field2d();
 
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
@@ -66,7 +81,10 @@ public class Drivetrain extends SubsystemBase {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    m_rightLeader.setInverted(true);
+    m_rightLeader.setInverted(Constants.DriveConstants.kRightReversed);
+    m_leftLeader.setInverted(Constants.DriveConstants.kLeftReversed);
+    m_rightFollower.setInverted(Constants.DriveConstants.kRightReversed);
+    m_leftFollower.setInverted(Constants.DriveConstants.kLeftReversed);
 
     m_gyro = new AHRS(SPI.Port.kMXP);
 
@@ -89,6 +107,31 @@ public class Drivetrain extends SubsystemBase {
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
+
+    AutoBuilder.configureRamsete(
+        this::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getCurrentSpeeds, // Current ChassisSpeeds supplier
+        this::tankDriveVolts, // Method that will drive the robot given ChassisSpeeds
+        new ReplanningConfig(), // Default path replanning config. See the API for the options here
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
+    // Set up custom logging to add the current path to a field 2d widget
+    PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
+
+    SmartDashboard.putData("Field", field);
   }
 
   /** The log method puts interesting information to the SmartDashboard. */
@@ -110,11 +153,35 @@ public class Drivetrain extends SubsystemBase {
     m_drive.tankDrive(left, right);
   }
 
-  
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
-  public void arcadeDrive(double speed, double rotation) {
+  public void arcadeDriveController(double speed, double rotation) {
     m_drive.arcadeDrive(speed, rotation);
+
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(Constants.DriveConstants.kS,
+      Constants.DriveConstants.kV, Constants.DriveConstants.kA);
+
+  public void arcadeDrive(double fwdVel, double rotVel) {
+    var wheelSpeeds = m_kinematics.toWheelSpeeds(
+        new ChassisSpeeds(fwdVel, 0, rotVel));
+
+  }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(ChassisSpeeds chassisSpeeds) {
+
+    m_leftLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).leftMetersPerSecond));
+
+    m_rightLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
+    m_drive.feed();
+
   }
 
   /**
@@ -124,6 +191,26 @@ public class Drivetrain extends SubsystemBase {
    */
   public double getHeading() {
     return m_gyro.getAngle();
+  }
+
+  /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getVelocity(), m_rightEncoder.getVelocity());
+  }
+
+  /**
+   * Returns the ChassisSpeeds of the robot.
+   * 
+   * @return The ChassisSpeeds.
+   */
+  public ChassisSpeeds getCurrentSpeeds() {
+
+    return m_kinematics.toChassisSpeeds(getWheelSpeeds());
+
   }
 
   /** Reset the robots sensors to the zero states. */
@@ -174,7 +261,7 @@ public class Drivetrain extends SubsystemBase {
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdometry(Pose2d pose) {
+  public void resetPose(Pose2d pose) {
     resetEncoders();
     zeroHeading(pose.getRotation());
     m_odometry.resetPosition(
@@ -189,6 +276,7 @@ public class Drivetrain extends SubsystemBase {
   public double getDistance() {
     return (m_leftEncoder.getPosition() + m_rightEncoder.getPosition()) / 2;
   }
+
 
   /** Call log method every loop. */
   @Override
