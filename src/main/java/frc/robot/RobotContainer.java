@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
@@ -90,10 +91,10 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
 
-    // startFlywheel.onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
