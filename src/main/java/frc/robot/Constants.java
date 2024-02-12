@@ -30,10 +30,7 @@ public final class Constants {
     public static final double kS = 0.11673;
     public static final double kV = 1.3815;
     public static final double kA = 0.12011;
-  }
-
     public static final int kForwardBackSlewRate = 3;
     public static final int kTurnSlewRate = 2;
-    
   }
 }

@@ -155,17 +155,13 @@ public class Drivetrain extends SubsystemBase {
 
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
-  public void arcadeDriveController(double speed, double rotation) {
+  public void arcadeDrive(double speed, double rotation) {
     m_drive.arcadeDrive(speed, rotation);
+  }
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(Constants.DriveConstants.kS,
       Constants.DriveConstants.kV, Constants.DriveConstants.kA);
 
-  public void arcadeDrive(double fwdVel, double rotVel) {
-    var wheelSpeeds = m_kinematics.toWheelSpeeds(
-        new ChassisSpeeds(fwdVel, 0, rotVel));
-
-  }
 
   /**
    * Controls the left and right sides of the drive directly with voltages.
