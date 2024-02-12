@@ -48,6 +48,7 @@ public class RobotContainer {
     m_drivetrain.setDefaultCommand(
         new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
 
+
     /**
      * Decide if you want to use Arcade drive
      */
@@ -90,10 +91,10 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
 
-    // startFlywheel.onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
