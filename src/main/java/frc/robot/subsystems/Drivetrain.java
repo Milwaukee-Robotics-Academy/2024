@@ -52,9 +52,13 @@ public class Drivetrain extends SubsystemBase {
     SendableRegistry.addChild(m_drive, m_rightLeader);
 
     m_leftLeader.restoreFactoryDefaults();
+    m_leftLeader.setSmartCurrentLimit(80);
     m_rightLeader.restoreFactoryDefaults();
+    m_rightLeader .setSmartCurrentLimit(80);
     m_leftFollower.restoreFactoryDefaults();
+    m_leftFollower.setSmartCurrentLimit(80);
     m_rightFollower.restoreFactoryDefaults();
+    m_rightFollower.setSmartCurrentLimit(80);
 
     m_leftFollower.follow(m_leftLeader);
     m_rightFollower.follow(m_rightLeader);
@@ -104,6 +108,13 @@ public class Drivetrain extends SubsystemBase {
    */
   public void drive(double left, double right) {
     m_drive.tankDrive(left, right);
+  }
+
+  
+  /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
+   * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
+  public void arcadeDrive(double speed, double rotation) {
+    m_drive.arcadeDrive(speed, rotation);
   }
 
   /**

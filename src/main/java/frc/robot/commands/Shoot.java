@@ -18,6 +18,8 @@ public class Shoot extends Command {
   /** Creates a new Shoot. */
     public Shoot(Shooter shooter) {
         m_shooter = shooter;
+        addRequirements(m_shooter);
+
     }
 
     @Override
