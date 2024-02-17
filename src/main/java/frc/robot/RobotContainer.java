@@ -16,6 +16,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.TankDriveControls;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -47,7 +48,6 @@ public class RobotContainer {
     // Assign default commands
     m_drivetrain.setDefaultCommand(
         new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
-
 
     /**
      * Decide if you want to use Arcade drive
