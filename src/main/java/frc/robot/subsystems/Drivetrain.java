@@ -66,7 +66,11 @@ public class Drivetrain extends SubsystemBase {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    m_rightLeader.setInverted(true);
+    m_rightLeader.setInverted(false);
+    m_rightFollower.setInverted(false);
+    m_leftLeader.setInverted(true);
+    m_leftFollower.setInverted(true);
+
 
     m_gyro = new AHRS(SPI.Port.kMXP);
 
@@ -188,4 +192,8 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     log();
   }
+
+public void driveTank(double left, double right) {
+        m_drive.arcadeDrive(left, right);
+}
 }
