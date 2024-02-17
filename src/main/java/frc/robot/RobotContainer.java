@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
@@ -31,7 +34,11 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
+
   private final Command m_autonomousCommand;
+  private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
+      Constants.DriveConstants.kForwardBackSlewRate);
+  private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -42,6 +49,18 @@ public class RobotContainer {
     // Assign default commands
     m_drivetrain.setDefaultCommand(
         new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
+
+    /**
+     * Decide if you want to use Arcade drive
+     */
+    // m_drivetrain.setDefaultCommand(
+    //     new RunCommand(
+    //         () -> m_drivetrain.arcadeDrive(
+    //             m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
+    //             m_TurnLimiter.calculate(-m_driver.getRightX())),
+    //         m_drivetrain));
+
+
     m_autonomousCommand = new WaitCommand(1);
 
     // Show what command your subsystem is running on the SmartDashboard
@@ -64,6 +83,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Create some buttons
     initializeShooterControls();
+
   }
 
   /**
@@ -72,10 +92,10 @@ public class RobotContainer {
    */
   private void initializeShooterControls() {
     // Connect the buttons to commands
+    
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
-    m_driver.a().onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
