@@ -32,7 +32,7 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkMax m_leftLeader = new CANSparkMax(DriveConstants.kLeftMotorPort1, MotorType.kBrushless);
   private final CANSparkMax m_leftFollower = new CANSparkMax(DriveConstants.kLeftMotorPort2, MotorType.kBrushless);
   private final CANSparkMax m_rightLeader = new CANSparkMax(DriveConstants.kRightMotorPort1, MotorType.kBrushless);
- private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
+  private final CANSparkMax m_rightFollower = new CANSparkMax(DriveConstants.kRightMotorPort2, MotorType.kBrushless);
   private RelativeEncoder m_leftEncoder;
   private RelativeEncoder m_rightEncoder;
 
@@ -108,6 +108,13 @@ public class Drivetrain extends SubsystemBase {
    */
   public void drive(double left, double right) {
     m_drive.tankDrive(left, right);
+  }
+
+  
+  /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
+   * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
+  public void arcadeDrive(double speed, double rotation) {
+    m_drive.arcadeDrive(speed, rotation);
   }
 
   /**
