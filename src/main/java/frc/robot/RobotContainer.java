@@ -40,6 +40,7 @@ public class RobotContainer {
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
 
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -47,19 +48,24 @@ public class RobotContainer {
     // Put Some buttons on the SmartDashboard
 
     // Assign default commands
-    m_drivetrain.setDefaultCommand(
-        new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
+    // m_drivetrain.setDefaultCommand(
+    //     new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
 
     /**
      * Decide if you want to use Arcade drive
      */
-    // m_drivetrain.setDefaultCommand(
-    //     new RunCommand(
-    //         () -> m_drivetrain.arcadeDrive(
-    //             m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
-    //             m_TurnLimiter.calculate(-m_driver.getRightX())),
-    //         m_drivetrain));
-
+    m_drivetrain.setDefaultCommand(
+        new RunCommand(
+          () -> m_drivetrain.arcadeDrive(
+                  // Forward/back motion is controlled by the left stick Y. Can not limit acceleration if the left trigger is held, and will not limit it until speed is high enough.
+                  applySlewRateLimiterIfTrue(-m_driver.getLeftY(), m_ForwardBackLimiter, (!m_driver.leftTrigger().getAsBoolean() && m_drivetrain.getWheelSpeed() > Constants.DriveConstants.kForwardBackSlewThreshold)),
+                  // Turning is controlled by the right stick X. Applies an acceleration limiter if the right trigger is held.
+                  applySlewRateLimiterIfTrue(m_driver.getRightX(), m_TurnLimiter, !(m_driver.rightTrigger().getAsBoolean()))
+                ),
+          m_drivetrain
+          )
+        );
+    
 
     m_autonomousCommand = new WaitCommand(1);
 
@@ -69,6 +75,22 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+  }
+
+  /**
+   * Applies a slew rate limiter to a drive input if the provided condition is true.
+   * @param driveInput A double input indicating how far a joystick is on an axis, trigger strength, etc.
+   * @param slewRateLimiter The slew rate limiter to apply to the driveInput.
+   * @param condition The condition where, if true, applies the slewRateLimiter.
+   * @return The modified driveInput.
+   */
+  public static double applySlewRateLimiterIfTrue(double driveInput, SlewRateLimiter slewRateLimiter, boolean condition)
+  {
+    if (condition)
+    {
+      return slewRateLimiter.calculate(driveInput);
+    }
+    return driveInput;
   }
 
   /**
@@ -96,6 +118,7 @@ public class RobotContainer {
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+    m_driver.a().onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }

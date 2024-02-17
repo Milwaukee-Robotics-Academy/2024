@@ -29,8 +29,9 @@ public final class Constants {
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterInches * Math.PI) / (double) kEncoderCPR;
 
-    public static final int kForwardBackSlewRate = 3;
-    public static final int kTurnSlewRate = 2;
-    
+    public static final int kForwardBackSlewRate = 1;
+    public static final int kTurnSlewRate = 1;
+    public static final double kForwardBackSlewThreshold = 0; 
+    public static final double kTurnSlewThreshold = 1; // TODO change this
   }
 }

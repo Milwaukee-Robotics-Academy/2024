@@ -91,7 +91,13 @@ public class Drivetrain extends SubsystemBase {
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
   }
-
+  /**
+   * Creates a public variable of the average speed of the robot's wheels for use in the slew rate limiter.
+   * @return
+   */
+  public double getWheelSpeed() {
+    return (Math.abs(m_leftLeader.getEncoder().getVelocity()) + Math.abs(m_rightLeader.getEncoder().getVelocity()))/2;
+  }
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() {
     SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition());
