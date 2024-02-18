@@ -67,7 +67,6 @@ public class Drivetrain extends SubsystemBase {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightLeader.setInverted(true);
-
     m_gyro = new AHRS(SPI.Port.kMXP);
 
     m_rightLeader.setOpenLoopRampRate(0.2);

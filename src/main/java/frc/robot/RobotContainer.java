@@ -46,19 +46,19 @@ public class RobotContainer {
     // Put Some buttons on the SmartDashboard
 
     // Assign default commands
-    m_drivetrain.setDefaultCommand(
-        new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
+    // m_drivetrain.setDefaultCommand(
+    //     new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
 
 
     /**
      * Decide if you want to use Arcade drive
      */
-    // m_drivetrain.setDefaultCommand(
-    //     new RunCommand(
-    //         () -> m_drivetrain.arcadeDrive(
-    //             m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
-    //             m_TurnLimiter.calculate(-m_driver.getRightX())),
-    //         m_drivetrain));
+    m_drivetrain.setDefaultCommand(
+        new RunCommand(
+            () -> m_drivetrain.arcadeDrive(
+                m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
+                m_TurnLimiter.calculate(-m_driver.getRightX())),
+            m_drivetrain));
 
     m_autonomousCommand = new WaitCommand(1);
 
