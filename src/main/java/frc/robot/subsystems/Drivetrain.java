@@ -108,12 +108,12 @@ public class Drivetrain extends SubsystemBase {
     addChild("Gyro", m_gyro);
 
     AutoBuilder.configureRamsete(
-      this::getPose,
-      this::resetOdometry, // ???
-      this::getCurrentSpeeds,
-      this::tankDriveVolts,
-      new ReplanningConfig(),
-      () -> {
+      this::getPose, // function to get the robot's pose values
+      this::resetOdometry, // function to reset robot's pose values
+      this::getCurrentSpeeds, // function to get the robot's current ChassisSpeeds
+      this::tankDriveVolts, // function to control the robot via direct voltages
+      new ReplanningConfig(), // default path replanning configuration
+      () -> { // function to figure out whether the path should flip or not due to the team color
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent())
         {
@@ -121,7 +121,7 @@ public class Drivetrain extends SubsystemBase {
         }
         return false;
       },
-      this
+      this // the drivetrain subsystem
     );
   }
 
@@ -129,7 +129,7 @@ public class Drivetrain extends SubsystemBase {
    * Creates a public variable of the average speed of the robot's wheels for use in the slew rate limiter.
    * @return
    */
-  public double getWheelSpeed() {
+  public double getRobotSpeed() {
     return (Math.abs(m_leftLeader.getEncoder().getVelocity()) + Math.abs(m_rightLeader.getEncoder().getVelocity()))/2;
   }
 
