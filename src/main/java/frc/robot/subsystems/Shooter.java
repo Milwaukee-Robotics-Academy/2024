@@ -75,7 +75,8 @@ public double getBottomMotorSpeed() {
 
   public void shoot()
   {
-    m_triggerMotor.set(1);
+    m_flywheel.set(1);
+    m_triggerMotor.set(.25); 
   }
   public void setMotorSpeed(double topSpeed, double bottomSpeed) {
     m_flywheel.set(topSpeed);
