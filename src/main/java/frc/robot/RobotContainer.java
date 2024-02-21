@@ -58,7 +58,7 @@ public class RobotContainer {
         new RunCommand(
           () -> m_drivetrain.arcadeDrive(
                   // Forward/back motion is controlled by the left stick Y. Can not limit acceleration if the left trigger is held, and will not limit it until speed is high enough.
-                  applySlewRateLimiterIfTrue(-m_driver.getLeftY(), m_ForwardBackLimiter, (!m_driver.leftTrigger().getAsBoolean() && m_drivetrain.getWheelSpeed() > Constants.DriveConstants.kForwardBackSlewThreshold)),
+                  applySlewRateLimiterIfTrue(-m_driver.getLeftY(), m_ForwardBackLimiter, (!m_driver.leftTrigger().getAsBoolean() && m_drivetrain.getRobotSpeed() > Constants.DriveConstants.kForwardBackSlewThreshold)),
                   // Turning is controlled by the right stick X. Applies an acceleration limiter if the right trigger is held.
                   applySlewRateLimiterIfTrue(m_driver.getRightX(), m_TurnLimiter, !(m_driver.rightTrigger().getAsBoolean()))
                 ),

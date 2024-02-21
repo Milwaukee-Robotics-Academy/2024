@@ -9,20 +9,30 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 public class Drivetrain extends SubsystemBase {
   // The Drivetrain subsystem incorporates the sensors and actuators attached to
@@ -41,8 +51,17 @@ public class Drivetrain extends SubsystemBase {
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
-
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+    Constants.DriveConstants.kTrackWidthMeters
+  );
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
+    Constants.DriveConstants.kS, 
+    Constants.DriveConstants.kV,
+    Constants.DriveConstants.kA
+  );
+
+  public Field2d field = new Field2d();
 
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
@@ -90,14 +109,38 @@ public class Drivetrain extends SubsystemBase {
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
+
+    AutoBuilder.configureRamsete(
+      this::getPose, // function to get the robot's pose values
+      this::resetOdometry, // function to reset robot's pose values
+      this::getCurrentSpeeds, // function to get the robot's current ChassisSpeeds
+      this::tankDriveVolts, // function to control the robot via direct voltages
+      new ReplanningConfig(), // default path replanning configuration
+      () -> { // function to figure out whether the path should flip or not due to the team color
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent())
+        {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      this // the drivetrain subsystem
+    );
+
+    // Set up custom logging to add the current path to a field 2d widget
+    PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
+    SmartDashboard.putData("Field", field);
   }
+
+
   /**
    * Creates a public variable of the average speed of the robot's wheels for use in the slew rate limiter.
    * @return
    */
-  public double getWheelSpeed() {
+  public double getRobotSpeed() {
     return (Math.abs(m_leftLeader.getEncoder().getVelocity()) + Math.abs(m_rightLeader.getEncoder().getVelocity()))/2;
   }
+
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() {
     SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition());
@@ -116,6 +159,24 @@ public class Drivetrain extends SubsystemBase {
   public void drive(double left, double right) {
     m_drive.tankDrive(left, right);
   }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(ChassisSpeeds chassisSpeeds) {
+
+    m_leftLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).leftMetersPerSecond));
+
+    m_rightLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
+    m_drive.feed();
+
+  }
+
 
   
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
@@ -175,6 +236,26 @@ public class Drivetrain extends SubsystemBase {
   public double getTurnRate() {
     return -m_gyro.getRate();
   }
+
+  /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getVelocity(), m_rightEncoder.getVelocity());
+  }
+
+
+  /**
+   * Returns the ChassisSpeeds of the robot.
+   *
+   * @return The ChassisSpeeds.
+   */
+  public ChassisSpeeds getCurrentSpeeds() {
+    return m_kinematics.toChassisSpeeds(getWheelSpeeds());
+  }
+
 
   /**
    * Resets the odometry to the specified pose.
