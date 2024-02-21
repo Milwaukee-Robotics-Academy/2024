@@ -1,0 +1,7 @@
+X is ShooterShoot
+Y is ShooterIntake
+B is ShooterStop
+A is ShooterFlywheer
+UpDpad is ClawIntake
+DownDpad is ClawStop
+LeftDpad is ClawDrop

@@ -36,7 +36,7 @@ public class Amper extends SubsystemBase {
     m_ampanator.set(1);
   }
   
-  private void stop() {
+  public void stop() {
     m_ampanator.set(0);
   }
 

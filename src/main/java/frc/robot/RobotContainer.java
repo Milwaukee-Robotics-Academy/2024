@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
+import frc.robot.subsystems.Amper;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.TankDriveControls;
@@ -32,6 +33,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Shooter m_shooter = new Shooter();
+  private final Amper m_amper = new Amper();
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
 
@@ -109,7 +111,8 @@ public class RobotContainer {
   }
 
   /**
-   * Configures the Note shooter controls, according to the shooter buttons
+   * Configures the Note shooter and amper controls, according to the bindings buttons 
+   * (see Controller Bindings.txt)
    * defined in the class.
    */
   private void initializeShooterControls() {
@@ -119,6 +122,11 @@ public class RobotContainer {
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
     m_driver.a().onTrue(new InstantCommand(() -> m_shooter.readyFlywheel()));
+    m_driver.povDown().onTrue(new InstantCommand(() -> m_amper.stop()));
+    m_driver.povUp().onTrue(new InstantCommand(() -> m_amper.intake()));
+    m_driver.povLeft().onTrue(new InstantCommand(() -> m_amper.drop()));
+
+    
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
