@@ -27,6 +27,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -58,7 +59,9 @@ public class Drivetrain extends SubsystemBase {
     Constants.DriveConstants.kS, 
     Constants.DriveConstants.kV,
     Constants.DriveConstants.kA
-    );
+  );
+
+  public Field2d field = new Field2d();
 
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
@@ -123,7 +126,12 @@ public class Drivetrain extends SubsystemBase {
       },
       this // the drivetrain subsystem
     );
+
+    // Set up custom logging to add the current path to a field 2d widget
+    PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
+    SmartDashboard.putData("Field", field);
   }
+
 
   /**
    * Creates a public variable of the average speed of the robot's wheels for use in the slew rate limiter.
