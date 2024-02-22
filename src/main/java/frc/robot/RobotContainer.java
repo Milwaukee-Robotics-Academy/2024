@@ -66,7 +66,21 @@ public class RobotContainer {
         catch (InterruptedException e) {}
         m_shooter.stop();
       }
+    )    
+    );
+    NamedCommands.registerCommand("intake",
+    new InstantCommand(
+      () -> {
+        m_shooter.intake();
+        try 
+        {
+          Thread.sleep(5000);
+        } 
+        catch (InterruptedException e) {}
+        m_shooter.stop();           
+      }
     )
+
     );
 
     // Assign default commands
@@ -157,6 +171,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-  return new PathPlannerAuto("test auto");
+  return new PathPlannerAuto("Intake Test 1");
   }
 }

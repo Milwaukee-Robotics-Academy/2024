@@ -14,13 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "Intake Test 1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shooter"
+            "name": "intake"
           }
         }
       ]
