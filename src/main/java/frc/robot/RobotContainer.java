@@ -19,6 +19,13 @@ import frc.robot.commands.Shoot;
 import frc.robot.subsystems.Amper;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.File;
+import java.util.Scanner;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 /**
@@ -163,6 +170,24 @@ public class RobotContainer {
     
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
+  }
+
+  public String getSelectedAutoFileName()
+  {
+    String fileName = "";
+    try (Scanner selectedAutoFileReader = new Scanner(new File("src/main/java/frc/SelectedAuto.txt")))
+    {
+      fileName = selectedAutoFileReader.nextLine().strip();
+      if (fileName.isEmpty())
+      {
+        throw new IOException("Filename in SelectedAuto.txt is empty.");
+      }
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+    return "";
   }
 
   /**
