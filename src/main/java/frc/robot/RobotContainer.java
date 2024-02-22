@@ -5,6 +5,8 @@
 package frc.robot;
 
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,11 +16,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Amper;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.TankDriveControls;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -47,7 +48,26 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Put Some buttons on the SmartDashboard
+    // Register note shooter command
+    NamedCommands.registerCommand("shooter", 
+    new InstantCommand(
+      () -> {
+        m_shooter.readyFlywheel();
+        try 
+        {
+          Thread.sleep(2000);
+        } 
+        catch (InterruptedException e) {}
+        m_shooter.shoot();
+        try
+        {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {}
+        m_shooter.stop();
+      }
+    )
+    );
 
     // Assign default commands
     // m_drivetrain.setDefaultCommand(
@@ -137,6 +157,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autonomousCommand;
+  return new PathPlannerAuto("test auto");
   }
 }
