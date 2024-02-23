@@ -3,7 +3,7 @@
   "startingPose": {
     "position": {
       "x": 2.0,
-      "y": 7.0
+      "y": 5.5
     },
     "rotation": 0
   },
@@ -14,13 +14,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake Test 1"
+            "pathName": "Intake Middle"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake To Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]

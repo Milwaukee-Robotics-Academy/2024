@@ -29,7 +29,7 @@ public class Amper extends SubsystemBase {
   }
   
   public void intake() {
-    m_ampanator.set(-0.25);
+    m_ampanator.set(-0.4);
   }
   
   public void drop() {
