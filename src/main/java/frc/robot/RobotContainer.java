@@ -61,7 +61,7 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new InstantCommand(m_shooter::readyFlywheel),
         new WaitCommand(1.5),
-        new InstantCommand(m_shooter::shoot),
+        new InstantCommand(m_shooter::autoShoot),
         new WaitCommand(1),
         new InstantCommand(m_shooter::stop)
       )   
