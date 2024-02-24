@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.1,
-      "y": 7.34
+      "x": 2.0,
+      "y": 7.0
     },
     "rotation": 0
   },
@@ -14,19 +14,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Top to Amper"
+            "pathName": "Intake Top"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "amperDrop"
+            "name": "intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Amper Back-up"
+            "pathName": "Intake To Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]

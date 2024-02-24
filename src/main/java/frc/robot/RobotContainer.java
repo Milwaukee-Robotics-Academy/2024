@@ -57,37 +57,49 @@ public class RobotContainer {
   public RobotContainer() {
     // Register note shooter command
     NamedCommands.registerCommand("shooter", 
-    new InstantCommand(
-      () -> {
-        m_shooter.readyFlywheel();
-        try 
-        {
-          Thread.sleep(2000);
-        } 
-        catch (InterruptedException e) {}
-        m_shooter.shoot();
-        try
-        {
-          Thread.sleep(1000);
+      new InstantCommand(
+        () -> {
+          m_shooter.readyFlywheel();
+          try 
+          {
+            Thread.sleep(2000);
+          } 
+          catch (InterruptedException e) {}
+          m_shooter.shoot();
+          try
+          {
+            Thread.sleep(1000);
+          }
+          catch (InterruptedException e) {}
+          m_shooter.stop();
         }
-        catch (InterruptedException e) {}
-        m_shooter.stop();
-      }
-    )    
+      )    
     );
     NamedCommands.registerCommand("intake",
-    new InstantCommand(
-      () -> {
-        m_shooter.intake();
-        try 
-        {
-          Thread.sleep(5000);
-        } 
-        catch (InterruptedException e) {}
-        m_shooter.stop();           
-      }
-    )
-
+      new InstantCommand(
+        () -> {
+          m_shooter.intake();
+          try 
+          {
+            Thread.sleep(5000);
+          } 
+          catch (InterruptedException e) {}
+          m_shooter.stop();           
+        }
+      )
+    );
+    NamedCommands.registerCommand("amperDrop", 
+      new InstantCommand(
+        () -> {
+          m_amper.drop();
+          try 
+          {
+            Thread.sleep(2000);
+          } 
+          catch (InterruptedException e) {}
+          m_amper.stop();
+        }
+      ) 
     );
 
     // Assign default commands
@@ -182,12 +194,12 @@ public class RobotContainer {
       {
         throw new IOException("Filename in SelectedAuto.txt is empty.");
       }
+      return fileName;
     }
     catch (IOException e)
     {
-      e.printStackTrace();
     }
-    return "";
+    return "ERROR";
   }
 
   /**
@@ -196,6 +208,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-  return new PathPlannerAuto("Shooter Test 1");
+    return new PathPlannerAuto(getSelectedAutoFileName());
   }
 }

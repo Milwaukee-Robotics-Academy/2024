@@ -1,6 +1,12 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 0.5455876385813603,
+      "y": 4.111991050457951
+    },
+    "rotation": 0
+  },
   "command": {
     "type": "sequential",
     "data": {
@@ -8,13 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Middle to Amper"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "amperDrop"
           }
         }
       ]

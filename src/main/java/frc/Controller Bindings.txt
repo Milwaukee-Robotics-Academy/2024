@@ -1,5 +1,5 @@
-X is ShooterShoot
-Y is ShooterIntake
+X is ShooterShoot  <-- Y on jank controller
+Y is ShooterIntake <-- X on jank controller
 B is ShooterStop
 A is ShooterFlywheer
 UpDpad is ClawIntake

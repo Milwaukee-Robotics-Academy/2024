@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 1.1,
-      "y": 7.34
-    },
-    "rotation": 0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -14,19 +8,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Top to Amper"
+            "pathName": "Copy of New Path"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "amperDrop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Amper Back-up"
+            "name": "shoot"
           }
         }
       ]
