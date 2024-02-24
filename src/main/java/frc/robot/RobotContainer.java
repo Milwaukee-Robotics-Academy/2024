@@ -186,20 +186,20 @@ public class RobotContainer {
 
   public String getSelectedAutoFileName()
   {
-    String fileName = "";
-    try (Scanner selectedAutoFileReader = new Scanner(new File("src/main/java/frc/SelectedAuto.txt")))
-    {
-      fileName = selectedAutoFileReader.nextLine().strip();
-      if (fileName.isEmpty())
-      {
-        throw new IOException("Filename in SelectedAuto.txt is empty.");
-      }
-      return fileName;
-    }
-    catch (IOException e)
-    {
-    }
-    return "ERROR";
+    // String fileName = "";
+    // try (Scanner selectedAutoFileReader = new Scanner(new File("src/main/java/frc/SelectedAuto.txt")))
+    // {
+    //   fileName = selectedAutoFileReader.nextLine().strip();
+    //   if (fileName.isEmpty())
+    //   {
+    //     throw new IOException("Filename in SelectedAuto.txt is empty.");
+    //   }
+    //   return fileName;
+    // }
+    // catch (IOException e)
+    // {
+    // }
+    return "Top";
   }
 
   /**
