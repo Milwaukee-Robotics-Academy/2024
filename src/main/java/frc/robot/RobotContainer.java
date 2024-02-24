@@ -60,7 +60,7 @@ public class RobotContainer {
                 m_TurnLimiter.calculate(-m_driver.getRightX())),
             m_drivetrain));
 
-    m_autonomousCommand = new WaitCommand(1);
+    m_autonomousCommand = new Shoot(m_shooter).withTimeout(2);
 
     // Show what command your subsystem is running on the SmartDashboard
     SmartDashboard.putData(m_drivetrain);
@@ -95,6 +95,7 @@ public class RobotContainer {
     m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+    m_driver.a().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
