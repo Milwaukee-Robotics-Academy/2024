@@ -5,6 +5,10 @@
 package frc.robot;
 
 
+import java.sql.Driver;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 
@@ -31,6 +36,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final Shooter m_shooter = new Shooter();
+  private final Climber m_climber = new Climber(); 
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
 
@@ -46,24 +52,28 @@ public class RobotContainer {
     // Put Some buttons on the SmartDashboard
 
     // Assign default commands
-    m_drivetrain.setDefaultCommand(
-        new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
+    // m_drivetrain.setDefaultCommand(
+    //     new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
 
     /**
      * Decide if you want to use Arcade drive
      */
-    // m_drivetrain.setDefaultCommand(
-    //     new RunCommand(
-    //         () -> m_drivetrain.arcadeDrive(
-    //             m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
-    //             m_TurnLimiter.calculate(-m_driver.getRightX())),
-    //         m_drivetrain));
+    m_drivetrain.setDefaultCommand(
+        new RunCommand(
+            () -> m_drivetrain.arcadeDrive(
+                m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
+                m_TurnLimiter.calculate(-m_driver.getRightX())),
+            m_drivetrain));
 
-    m_autonomousCommand = new WaitCommand(1);
-
+   // m_autonomousCommand = new Shoot(m_shooter).withTimeout(3);
+    // m_autonomousCommand = 
+           
     // Show what command your subsystem is running on the SmartDashboard
-    SmartDashboard.putData(m_drivetrain);
-    SmartDashboard.putData(m_shooter);
+    // SmartDashboard.putData(m_drivetrain);
+    // SmartDashboard.putData(m_shooter);
+
+  // Register Named Commands
+  NamedCommands.registerCommand("shoot", new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -96,6 +106,14 @@ public class RobotContainer {
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
+    m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_climber.up()));
+    m_driver.leftBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_climber.down()));
+    m_driver.rightBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+ 
+
+    SmartDashboard.putNumber("TopShooterMotor", 100.0);
+    SmartDashboard.putNumber("BottomShooterMotor", 100.0);
   }
 
   /**
@@ -104,6 +122,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autonomousCommand;
+    return new Shoot(m_shooter).withTimeout(3);
+     //return new PathPlannerAuto("auto");
+  
   }
 }
