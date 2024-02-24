@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
@@ -57,23 +58,13 @@ public class RobotContainer {
   public RobotContainer() {
     // Register note shooter command
     NamedCommands.registerCommand("shooter", 
-      new InstantCommand(
-        () -> {
-          m_shooter.readyFlywheel();
-          try 
-          {
-            Thread.sleep(2000);
-          } 
-          catch (InterruptedException e) {}
-          m_shooter.shoot();
-          try
-          {
-            Thread.sleep(1000);
-          }
-          catch (InterruptedException e) {}
-          m_shooter.stop();
-        }
-      )    
+      new SequentialCommandGroup(
+        new InstantCommand(m_shooter::readyFlywheel),
+        new WaitCommand(1.5),
+        new InstantCommand(m_shooter::shoot),
+        new WaitCommand(1),
+        new InstantCommand(m_shooter::stop)
+      )   
     );
     NamedCommands.registerCommand("intake",
       new InstantCommand(
@@ -199,7 +190,7 @@ public class RobotContainer {
     // catch (IOException e)
     // {
     // }
-    return "Top";
+    return "Shoot";
   }
 
   /**
