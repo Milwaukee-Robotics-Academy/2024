@@ -15,8 +15,7 @@ public final class Constants {
     public static final int kFlywheelMotorPort = 6;
     public static final int kShooterMotorPort = 5;
 
-    public static final int kFlywheelLeftMotorPort = 8 ;
-    public static final int kShooterLeftMotorPort = 7;
+    public static final int kAmperMotorPort = 7;
 
     public static final int[] kLeftEncoderPorts = {0, 1};
     public static final int[] kRightEncoderPorts = {2, 3};
@@ -32,8 +31,15 @@ public final class Constants {
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterInches * Math.PI) / (double) kEncoderCPR;
 
-    public static final int kForwardBackSlewRate = 3;
-    public static final int kTurnSlewRate = 2;
-    
+    public static final int kForwardBackSlewRate = 1;
+    public static final int kTurnSlewRate = 1;
+    public static final double kForwardBackSlewThreshold = 0; 
+    public static final double kTurnSlewThreshold = 1; // TODO change this
+
+    public static final double kTrackWidthMeters = 0.53;
+
+    public static final double kS = 0.11673; // copied from the features/pathplanner branch
+    public static final double kV = 1.3815;
+    public static final double kA = 0.12011;
   }
 }

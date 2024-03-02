@@ -5,12 +5,15 @@
 package frc.robot;
 
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
@@ -35,7 +38,7 @@ public class RobotContainer {
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
 
-  private final Command m_autonomousCommand;
+ // private final Command m_autonomousCommand;
   private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
@@ -61,7 +64,10 @@ public class RobotContainer {
                 m_TurnLimiter.calculate(-m_driver.getRightX())),
             m_drivetrain));
 
-    m_autonomousCommand = new Shoot(m_shooter).withTimeout(2);
+    // m_autonomousCommand = new SequentialCommandGroup(
+    //   new WaitCommand(3),
+    //   new Shoot(m_shooter).withTimeout(2)
+    // );
 
     // Show what command your subsystem is running on the SmartDashboard
     SmartDashboard.putData(m_drivetrain);
@@ -107,6 +113,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autonomousCommand;
+    return new PathPlannerAuto("New Auto");
   }
 }

@@ -23,9 +23,9 @@ public class Shooter extends SubsystemBase
     private RelativeEncoder m_flywheelEncoder = m_flywheel.getEncoder();
     private CANSparkMax m_triggerMotor = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
     private RelativeEncoder m_triggerEncoder = m_flywheel.getEncoder();
-    private CANSparkMax m_flywheelLeft = new CANSparkMax(DriveConstants.kFlywheelLeftMotorPort, MotorType.kBrushless);
+    private CANSparkMax m_flywheelLeft = new CANSparkMax(DriveConstants.kFlywheelMotorPort, MotorType.kBrushless);
      private RelativeEncoder m_flywheelEncoderLeft = m_flywheel.getEncoder();
-     private CANSparkMax m_triggerMotorLeft = new CANSparkMax(DriveConstants.kShooterLeftMotorPort, MotorType.kBrushless);
+     private CANSparkMax m_triggerMotorLeft = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
      private RelativeEncoder m_triggerEncoderLeft = m_flywheel.getEncoder();
     public Shooter()
     {
