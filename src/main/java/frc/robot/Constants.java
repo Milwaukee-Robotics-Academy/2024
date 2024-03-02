@@ -5,6 +5,10 @@
 package frc.robot;
 
 public final class Constants {
+
+  public static final int kLeftClimberMotorPort = 10;
+  public static final int kRightClimberMotorPort = 9;
+
   public static final class DriveConstants {
     public static final int kLeftMotorPort1 = 1;
     public static final int kLeftMotorPort2 = 2;

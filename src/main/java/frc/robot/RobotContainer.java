@@ -18,6 +18,7 @@ import frc.robot.commands.AmpShoot;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,6 +41,7 @@ public class RobotContainer {
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
 
+  private final Climber m_climber = new Climber();
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -99,6 +101,12 @@ public class RobotContainer {
     m_driver.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
+
+    // climber init
+    m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_climber.up()));
+    m_driver.leftBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_climber.down()));
+    m_driver.rightBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
   }
 
   /**
