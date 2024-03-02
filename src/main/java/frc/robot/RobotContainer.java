@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TankDrive;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 
@@ -38,6 +39,7 @@ public class RobotContainer {
   private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
+  private final Climber m_climber = new Climber();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -96,6 +98,13 @@ public class RobotContainer {
     m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
+
+     m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_climber.up()));
+    m_driver.leftBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_climber.down()));
+    m_driver.rightBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+ 
+
   }
 
   /**
