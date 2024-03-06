@@ -100,7 +100,7 @@ public double getBottomMotorSpeed() {
   public void shoot()
   {
     m_flywheel.set(1);
-    m_triggerMotor.set(.25); // TODO set back to 0.25 
+    m_triggerMotor.set(.25);
     m_flywheel2.set(-1);
     m_triggerMotor2.set(-.25);
   }
@@ -108,9 +108,7 @@ public double getBottomMotorSpeed() {
   public void autoShoot()
   {
     m_flywheel.set(1);
-    m_triggerMotor.set(1); // TODO set back to 0.25 (no)
-    m_flywheel2.set(-1);
-    m_triggerMotor2.set(-1);
+    m_triggerMotor.set(1); // TODO set back to 0.25 
   }
 
   public void setMotorSpeed(double topSpeed, double bottomSpeed) {
