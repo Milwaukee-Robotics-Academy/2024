@@ -11,12 +11,14 @@ import frc.robot.subsystems.Drivetrain;
 public class DriveForTime extends Command {
   Drivetrain drivetrain;
   double timeToDrive;
+  double speed;
   Timer timer=new Timer();
 
   /** Creates a new DriveForTime. */
-  public DriveForTime(Drivetrain drivetrain, double timeToDrive) {
+  public DriveForTime(Drivetrain drivetrain, double speed, double timeToDrive) {
     this.drivetrain = drivetrain;
     this.timeToDrive=timeToDrive;
+    this.speed = speed;
     addRequirements (drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -30,7 +32,7 @@ public class DriveForTime extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(.7, 0);
+    drivetrain.arcadeDrive(speed, 0);
   }
 
   // Called once the command ends or is interrupted.

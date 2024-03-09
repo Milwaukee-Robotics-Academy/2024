@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -22,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.AmpShoot;
+import frc.robot.commands.DriveForTime;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
@@ -51,7 +51,7 @@ public class RobotContainer {
 
   private final Climber m_climber = new Climber();
 
-   private final SendableChooser<Command> autoChooser;
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -61,8 +61,8 @@ public class RobotContainer {
 
     // Assign default commands
     // m_drivetrain.setDefaultCommand(
-    //     new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(), m_drivetrain));
-
+    // new TankDrive(() -> -m_driver.getLeftY(), () -> -m_driver.getRightY(),
+    // m_drivetrain));
 
     /**
      * Decide if you want to use Arcade drive
@@ -71,12 +71,12 @@ public class RobotContainer {
         new RunCommand(
             () -> m_drivetrain.arcadeDrive(
                 m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
-                m_TurnLimiter.calculate(-m_driver.getRightX())),
+                m_TurnLimiter.calculate(m_driver.getRightX())),
             m_drivetrain));
 
-    m_autonomousCommand = new Shoot(m_shooter).withTimeout(2);
+    m_autonomousCommand =  new Shoot(m_shooter).withTimeout(2).andThen( new DriveForTime(m_drivetrain, -.5, 2));
 
-       // Build an auto chooser. This will use Commands.none() as the default option.
+    // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -110,13 +110,12 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
 
-    m_operator.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
+    m_operator.x().whileTrue(new Shoot(m_shooter).handleInterrupt(() -> m_shooter.stop()));
     m_operator.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_operator.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
     m_operator.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
-
 
     // climber init
     m_operator.povUp().whileTrue(new InstantCommand(() -> m_climber.up()));
@@ -131,20 +130,17 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-   // return m_autonomousCommand;
-   return autoChooser.getSelected();
-  // return new PathPlannerAuto("New New Auto");
-  }
-  public void namedCommand()
-  {
-    NamedCommands.registerCommand("Shoot",
-    new SequentialCommandGroup(
-      new InstantCommand(m_shooter::shoot),
-new WaitCommand(1.2),
-new InstantCommand(m_shooter::stop)
-    ));
+   return m_autonomousCommand;
+   // return autoChooser.getSelected();
+    // return new PathPlannerAuto("New New Auto");
   }
 
+  public void namedCommand() {
+    NamedCommands.registerCommand("Shoot",
+        new SequentialCommandGroup(
+            new InstantCommand(m_shooter::shoot),
+            new WaitCommand(1.2),
+            new InstantCommand(m_shooter::stop)));
+  }
 
 }
-

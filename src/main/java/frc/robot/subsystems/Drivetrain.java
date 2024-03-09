@@ -29,6 +29,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -46,6 +47,7 @@ public class Drivetrain extends SubsystemBase {
 
   private AHRS m_gyro;
   private Rotation2d m_gyroOffset = new Rotation2d();
+  private final Field2d m_field = new Field2d();
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -82,7 +84,8 @@ public class Drivetrain extends SubsystemBase {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    m_rightLeader.setInverted(true);
+    m_rightLeader.setInverted(false);
+    m_leftLeader.setInverted(true);
     m_gyro = new AHRS(SPI.Port.kMXP);
 
     m_rightLeader.setOpenLoopRampRate(0.2);
@@ -104,6 +107,7 @@ public class Drivetrain extends SubsystemBase {
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
+    Shuffleboard.getTab("Field").add("Field1", m_field);
 
 
 
@@ -136,7 +140,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition());
     SmartDashboard.putNumber("Left Speed", m_leftEncoder.getVelocity());
     SmartDashboard.putNumber("Right Speed", m_rightEncoder.getVelocity());
-    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
+    SmartDashboard.putNumber("Gyro", getGyroRotation2dDegrees());
+        SmartDashboard.putNumber("Gyro2", getGyroRotation2d().getDegrees());
   }
 
   /**
@@ -208,11 +213,12 @@ public class Drivetrain extends SubsystemBase {
    * @return the robot's heading
    */
   public Rotation2d getGyroRotation2d() {
-    return Rotation2d.fromDegrees(-m_gyro.getAngle()).minus(m_gyroOffset);
+   return Rotation2d.fromDegrees(-m_gyro.getAngle()).minus(m_gyroOffset);
+   //return m_odometry.getPoseMeters().getRotation();
   }
 
   public double getGyroRotation2dDegrees() {
-    return getGyroRotation2d().getDegrees();
+    return m_odometry.getPoseMeters().getRotation().getDegrees();
   }
 
   /**
@@ -266,6 +272,11 @@ public class Drivetrain extends SubsystemBase {
   /** Call log method every loop. */
   @Override
   public void periodic() {
+
+    m_odometry.update(
+        getGyroRotation2d(), m_leftEncoder.getPosition(), m_rightEncoder.getPosition());
     log();
+    m_field.setRobotPose(m_odometry.getPoseMeters());
+
   }
 }

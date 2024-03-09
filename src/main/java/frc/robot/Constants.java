@@ -43,6 +43,9 @@ public final class Constants {
     public static final double kS = 0.11673; // copied from the features/pathplanner branch
     public static final double kV = 1.3815;
     public static final double kA = 0.12011;
+    public static final double kP =0.7;
+    public static final double kD =0.0;
+
   
   }
 }
