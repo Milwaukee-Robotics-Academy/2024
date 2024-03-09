@@ -5,19 +5,27 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -43,6 +51,14 @@ public class Drivetrain extends SubsystemBase {
   private final DifferentialDriveOdometry m_odometry;
 
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+    Constants.DriveConstants.kTrackWidthMeters
+  );
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
+    Constants.DriveConstants.kS, 
+    Constants.DriveConstants.kV,
+    Constants.DriveConstants.kA
+  );
 
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
@@ -88,6 +104,30 @@ public class Drivetrain extends SubsystemBase {
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
+
+
+
+
+     // Configure AutoBuilder last
+    AutoBuilder.configureRamsete(
+            this::getPose, // Robot pose supplier
+            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getCurrentSpeeds, // Current ChassisSpeeds supplier
+            this::tankDriveVolts, // Method that will drive the robot given ChassisSpeeds
+            new ReplanningConfig(), // Default path replanning config. See the API for the options here
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
   }
 
   /** The log method puts interesting information to the SmartDashboard. */
@@ -114,6 +154,22 @@ public class Drivetrain extends SubsystemBase {
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
   public void arcadeDrive(double speed, double rotation) {
     m_drive.arcadeDrive(speed, rotation);
+  }
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(ChassisSpeeds chassisSpeeds) {
+
+    m_leftLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).leftMetersPerSecond));
+
+    m_rightLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
+    m_drive.feed();
+
   }
 
   /**
@@ -189,6 +245,24 @@ public class Drivetrain extends SubsystemBase {
     return (m_leftEncoder.getPosition() + m_rightEncoder.getPosition()) / 2;
   }
 
+    /**
+   * Returns the ChassisSpeeds of the robot.
+   *
+   * @return The ChassisSpeeds.
+   */
+  public ChassisSpeeds getCurrentSpeeds() {
+    return m_kinematics.toChassisSpeeds(getWheelSpeeds());
+  }
+
+    /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getVelocity(), m_rightEncoder.getVelocity());
+  }
+  
   /** Call log method every loop. */
   @Override
   public void periodic() {

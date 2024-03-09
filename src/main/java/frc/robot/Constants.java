@@ -6,8 +6,8 @@ package frc.robot;
 
 public final class Constants {
 
-  public static final int kLeftClimberMotorPort = 10;
-  public static final int kRightClimberMotorPort = 9;
+  public static final int kLeftClimberMotorPort = 9;
+  public static final int kRightClimberMotorPort = 10;
 
   public static final class DriveConstants {
     public static final int kLeftMotorPort1 = 1;
@@ -38,6 +38,11 @@ public final class Constants {
 
     public static final int kForwardBackSlewRate = 3;
     public static final int kTurnSlewRate = 2;
-    
+    public static final double kTrackWidthMeters = 0.53;
+
+    public static final double kS = 0.11673; // copied from the features/pathplanner branch
+    public static final double kV = 1.3815;
+    public static final double kA = 0.12011;
+  
   }
 }

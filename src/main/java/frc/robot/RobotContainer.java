@@ -5,13 +5,20 @@
 package frc.robot;
 
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.AmpShoot;
@@ -35,6 +42,7 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
+  private final CommandXboxController m_operator = new CommandXboxController(1);
 
   private final Command m_autonomousCommand;
   private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
@@ -42,6 +50,9 @@ public class RobotContainer {
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
 
   private final Climber m_climber = new Climber();
+
+   private final SendableChooser<Command> autoChooser;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -64,6 +75,10 @@ public class RobotContainer {
             m_drivetrain));
 
     m_autonomousCommand = new Shoot(m_shooter).withTimeout(2);
+
+       // Build an auto chooser. This will use Commands.none() as the default option.
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     // Show what command your subsystem is running on the SmartDashboard
     SmartDashboard.putData(m_drivetrain);
@@ -95,18 +110,19 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
 
-    m_driver.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
-    m_driver.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
-    m_driver.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
-    m_driver.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
+    m_operator.x().whileTrue(new Shoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
+    m_operator.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
+    m_operator.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
+    m_operator.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
 
+
     // climber init
-    m_driver.leftBumper().whileTrue(new InstantCommand(() -> m_climber.up()));
-    m_driver.leftBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
-    m_driver.rightBumper().whileTrue(new InstantCommand(() -> m_climber.down()));
-    m_driver.rightBumper().onFalse(new InstantCommand(() -> m_climber.stop()));
+    m_operator.povUp().whileTrue(new InstantCommand(() -> m_climber.up()));
+    m_operator.povUp().onFalse(new InstantCommand(() -> m_climber.stop()));
+    m_operator.povDown().whileTrue(new InstantCommand(() -> m_climber.down()));
+    m_operator.povDown().onFalse(new InstantCommand(() -> m_climber.stop()));
   }
 
   /**
@@ -115,6 +131,20 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autonomousCommand;
+   // return m_autonomousCommand;
+   return autoChooser.getSelected();
+  // return new PathPlannerAuto("New New Auto");
   }
+  public void namedCommand()
+  {
+    NamedCommands.registerCommand("Shoot",
+    new SequentialCommandGroup(
+      new InstantCommand(m_shooter::shoot),
+new WaitCommand(1.2),
+new InstantCommand(m_shooter::stop)
+    ));
+  }
+
+
 }
+
