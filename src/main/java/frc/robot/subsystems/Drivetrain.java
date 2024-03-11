@@ -48,6 +48,7 @@ public class Drivetrain extends SubsystemBase {
   private AHRS m_gyro;
   private Rotation2d m_gyroOffset = new Rotation2d();
   private final Field2d m_field = new Field2d();
+  private boolean invertDriverControls = false;
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -109,6 +110,9 @@ public class Drivetrain extends SubsystemBase {
     addChild("Gyro", m_gyro);
     Shuffleboard.getTab("Field").add("Field1", m_field);
 
+    SmartDashboard.putBoolean("Invert Driver Controls", invertDriverControls);
+
+
 
 
 
@@ -157,7 +161,12 @@ public class Drivetrain extends SubsystemBase {
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
   public void arcadeDrive(double speed, double rotation) {
+
+    if (invertDriverControls){
+    m_drive.arcadeDrive(-speed, -rotation);
+    } else {
     m_drive.arcadeDrive(speed, rotation);
+    }
   }
   /**
    * Controls the left and right sides of the drive directly with voltages.
@@ -271,7 +280,7 @@ public class Drivetrain extends SubsystemBase {
   /** Call log method every loop. */
   @Override
   public void periodic() {
-
+  SmartDashboard.getBoolean("Invert Driver Controls", invertDriverControls);
     m_odometry.update(
         getGyroRotation2d(), m_leftEncoder.getPosition(), m_rightEncoder.getPosition());
     log();
