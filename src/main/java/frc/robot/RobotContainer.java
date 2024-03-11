@@ -70,8 +70,8 @@ public class RobotContainer {
     m_drivetrain.setDefaultCommand(
         new RunCommand(
             () -> m_drivetrain.arcadeDrive(
-                m_ForwardBackLimiter.calculate(-m_driver.getLeftY()),
-                m_TurnLimiter.calculate(m_driver.getRightX())),
+                m_ForwardBackLimiter.calculate(m_driver.getLeftY()),
+                m_TurnLimiter.calculate(-m_driver.getRightX())),
             m_drivetrain));
 
     m_autonomousCommand =  new Shoot(m_shooter).withTimeout(2).andThen( new DriveForTime(m_drivetrain, -.5, 2));
@@ -130,8 +130,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-   return m_autonomousCommand;
-   // return autoChooser.getSelected();
+  // return m_autonomousCommand;
+   return autoChooser.getSelected();
     // return new PathPlannerAuto("New New Auto");
   }
 
