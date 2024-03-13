@@ -109,7 +109,7 @@ public class RobotContainer {
    */
   private void initializeShooterControls() {
     // Connect the buttons to commands
-
+    m_driver.start().onTrue(new InstantCommand(() -> m_drivetrain.invertControls()));
     m_operator.x().whileTrue(new Shoot(m_shooter).handleInterrupt(() -> m_shooter.stop()));
     m_operator.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
     m_operator.b().onTrue(new InstantCommand(() -> m_shooter.stop()));

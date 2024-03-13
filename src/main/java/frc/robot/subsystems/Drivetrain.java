@@ -277,10 +277,16 @@ public class Drivetrain extends SubsystemBase {
     return new DifferentialDriveWheelSpeeds(m_leftEncoder.getVelocity(), m_rightEncoder.getVelocity());
   }
   
+  /**
+   * Invert controls. change the forward anb back driving direction per driver preference
+   */
+  public void invertControls(){
+    invertDriverControls = !invertDriverControls;
+  }
   /** Call log method every loop. */
   @Override
   public void periodic() {
-  SmartDashboard.getBoolean("Invert Driver Controls", invertDriverControls);
+    SmartDashboard.putBoolean("Invert Driver Controls", invertDriverControls);
     m_odometry.update(
         getGyroRotation2d(), m_leftEncoder.getPosition(), m_rightEncoder.getPosition());
     log();
