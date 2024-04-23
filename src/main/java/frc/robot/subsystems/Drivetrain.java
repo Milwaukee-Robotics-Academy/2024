@@ -5,22 +5,31 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -38,11 +47,21 @@ public class Drivetrain extends SubsystemBase {
 
   private AHRS m_gyro;
   private Rotation2d m_gyroOffset = new Rotation2d();
+  private final Field2d m_field = new Field2d();
+  private boolean invertDriverControls = false;
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
 
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+    Constants.DriveConstants.kTrackWidthMeters
+  );
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
+    Constants.DriveConstants.kS, 
+    Constants.DriveConstants.kV,
+    Constants.DriveConstants.kA
+  );
 
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
@@ -67,7 +86,7 @@ public class Drivetrain extends SubsystemBase {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightLeader.setInverted(true);
-
+    m_leftLeader.setInverted(false);
     m_gyro = new AHRS(SPI.Port.kMXP);
 
     m_rightLeader.setOpenLoopRampRate(0.2);
@@ -89,6 +108,34 @@ public class Drivetrain extends SubsystemBase {
     // Let's name the sensors on the LiveWindow
     addChild("Drive", m_drive);
     addChild("Gyro", m_gyro);
+    Shuffleboard.getTab("Field").add("Field1", m_field);
+
+    SmartDashboard.putBoolean("Invert Driver Controls", invertDriverControls);
+
+
+
+
+
+     // Configure AutoBuilder last
+    AutoBuilder.configureRamsete(
+            this::getPose, // Robot pose supplier
+            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getCurrentSpeeds, // Current ChassisSpeeds supplier
+            this::tankDriveVolts, // Method that will drive the robot given ChassisSpeeds
+            new ReplanningConfig(), // Default path replanning config. See the API for the options here
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
   }
 
   /** The log method puts interesting information to the SmartDashboard. */
@@ -97,7 +144,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition());
     SmartDashboard.putNumber("Left Speed", m_leftEncoder.getVelocity());
     SmartDashboard.putNumber("Right Speed", m_rightEncoder.getVelocity());
-    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
+    SmartDashboard.putNumber("Gyro2", getGyroRotation2d().getDegrees());
   }
 
   /**
@@ -114,7 +161,27 @@ public class Drivetrain extends SubsystemBase {
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
   public void arcadeDrive(double speed, double rotation) {
+
+    if (invertDriverControls){
+    m_drive.arcadeDrive(-speed, -rotation);
+    } else {
     m_drive.arcadeDrive(speed, rotation);
+    }
+  }
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(ChassisSpeeds chassisSpeeds) {
+
+    m_leftLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).leftMetersPerSecond));
+
+    m_rightLeader.setVoltage(
+        m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
+    m_drive.feed();
   }
 
   /**
@@ -153,11 +220,12 @@ public class Drivetrain extends SubsystemBase {
    * @return the robot's heading
    */
   public Rotation2d getGyroRotation2d() {
-    return Rotation2d.fromDegrees(-m_gyro.getAngle()).minus(m_gyroOffset);
+   return Rotation2d.fromDegrees(-m_gyro.getAngle()).minus(m_gyroOffset);
+   //return m_odometry.getPoseMeters().getRotation();
   }
 
   public double getGyroRotation2dDegrees() {
-    return getGyroRotation2d().getDegrees();
+    return m_odometry.getPoseMeters().getRotation().getDegrees();
   }
 
   /**
@@ -190,9 +258,38 @@ public class Drivetrain extends SubsystemBase {
     return (m_leftEncoder.getPosition() + m_rightEncoder.getPosition()) / 2;
   }
 
+    /**
+   * Returns the ChassisSpeeds of the robot.
+   *
+   * @return The ChassisSpeeds.
+   */
+  public ChassisSpeeds getCurrentSpeeds() {
+    return m_kinematics.toChassisSpeeds(getWheelSpeeds());
+  }
+
+    /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftEncoder.getVelocity(), m_rightEncoder.getVelocity());
+  }
+  
+  /**
+   * Invert controls. change the forward anb back driving direction per driver preference
+   */
+  public void invertControls(){
+    invertDriverControls = !invertDriverControls;
+  }
   /** Call log method every loop. */
   @Override
   public void periodic() {
+    SmartDashboard.putBoolean("Invert Driver Controls", invertDriverControls);
+    m_odometry.update(
+        getGyroRotation2d(), m_leftEncoder.getPosition(), m_rightEncoder.getPosition());
     log();
+    m_field.setRobotPose(m_odometry.getPoseMeters());
+
   }
 }
