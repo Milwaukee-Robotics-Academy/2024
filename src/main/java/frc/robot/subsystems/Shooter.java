@@ -111,10 +111,7 @@ public double getBottomMotorSpeed() {
      m_flywheelLeft.set(topLeftSpeed);
      m_triggerMotorLeft.set(bottomRightSpeed);
   }
-  public void setMotorSpeed(double topSpeed, double bottomSpeed) {
-    m_flywheel.set(topSpeed);
-    m_triggerMotor.set(bottomSpeed);
-}
+
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() 
   {
