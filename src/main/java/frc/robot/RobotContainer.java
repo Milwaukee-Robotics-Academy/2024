@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -48,11 +49,10 @@ public class RobotContainer {
   private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
-
   private final Climber m_climber = new Climber();
 
   private final SendableChooser<Command> autoChooser;
-
+  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -109,6 +109,7 @@ public class RobotContainer {
    */
   private void initializeShooterControls() {
     // Connect the buttons to commands
+
     m_driver.start().onTrue(new InstantCommand(() -> m_drivetrain.invertControls()));
     m_operator.x().whileTrue(new Shoot(m_shooter).handleInterrupt(() -> m_shooter.stop()));
     m_operator.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));

@@ -182,7 +182,6 @@ public class Drivetrain extends SubsystemBase {
     m_rightLeader.setVoltage(
         m_feedforward.calculate(m_kinematics.toWheelSpeeds(chassisSpeeds).rightMetersPerSecond));
     m_drive.feed();
-
   }
 
   /**

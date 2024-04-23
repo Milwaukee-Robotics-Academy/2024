@@ -35,7 +35,7 @@ public final class Constants {
     public static final double kEncoderDistancePerPulse =
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterInches * Math.PI) / (double) kEncoderCPR;
-
+    
     public static final int kForwardBackSlewRate = 3;
     public static final int kTurnSlewRate = 2;
     public static final double kTrackWidthMeters = 0.53;
@@ -45,7 +45,5 @@ public final class Constants {
     public static final double kA = 0.12011;
     public static final double kP =0.7;
     public static final double kD =0.0;
-
-  
   }
 }

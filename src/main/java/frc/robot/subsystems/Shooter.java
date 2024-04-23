@@ -24,9 +24,10 @@ public class Shooter extends SubsystemBase
     private CANSparkMax m_triggerMotor = new CANSparkMax(DriveConstants.kShooterMotorPort, MotorType.kBrushless);
     private RelativeEncoder m_triggerEncoder = m_flywheel.getEncoder();
     private CANSparkMax m_flywheelLeft = new CANSparkMax(DriveConstants.kFlywheelLeftMotorPort, MotorType.kBrushless);
-     private RelativeEncoder m_flywheelEncoderLeft = m_flywheel.getEncoder();
-     private CANSparkMax m_triggerMotorLeft = new CANSparkMax(DriveConstants.kShooterLeftMotorPort, MotorType.kBrushless);
-     private RelativeEncoder m_triggerEncoderLeft = m_flywheel.getEncoder();
+    private RelativeEncoder m_flywheelEncoderLeft = m_flywheel.getEncoder();
+    private CANSparkMax m_triggerMotorLeft = new CANSparkMax(DriveConstants.kShooterLeftMotorPort, MotorType.kBrushless);
+    private RelativeEncoder m_triggerEncoderLeft = m_flywheel.getEncoder();
+    
     public Shooter()
     {
       m_flywheel.restoreFactoryDefaults();
@@ -45,6 +46,7 @@ public class Shooter extends SubsystemBase
        m_triggerMotorLeft.setSmartCurrentLimit(80);
        m_triggerMotorLeft.setIdleMode(IdleMode.kBrake);
        m_triggerMotorLeft.setInverted(false);
+
       SmartDashboard.putNumber("FW-Encoder/speed",m_flywheelEncoder.getVelocity());
       SmartDashboard.putNumber("FW-Encoder/distance",m_flywheelEncoder.getPosition());
       SmartDashboard.putNumber("Trigger-Encoder/speed",m_flywheelEncoder.getVelocity());
@@ -109,6 +111,10 @@ public double getBottomMotorSpeed() {
      m_flywheelLeft.set(topLeftSpeed);
      m_triggerMotorLeft.set(bottomRightSpeed);
   }
+  public void setMotorSpeed(double topSpeed, double bottomSpeed) {
+    m_flywheel.set(topSpeed);
+    m_triggerMotor.set(bottomSpeed);
+}
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() 
   {
