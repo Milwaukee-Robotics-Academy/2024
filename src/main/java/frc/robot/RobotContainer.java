@@ -25,7 +25,6 @@ import frc.robot.commands.DriveForTime;
 import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Climber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -42,14 +41,12 @@ public class RobotContainer {
   private final Shooter m_shooter = new Shooter();
   // private final Joystick m_joystick = new Joystick(0);
   private final CommandXboxController m_driver = new CommandXboxController(0);
-  private final CommandXboxController m_operator = new CommandXboxController(1);
+ // private final CommandXboxController m_operator = new CommandXboxController(1);
 
   private final Command m_autonomousCommand;
   private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
       Constants.DriveConstants.kForwardBackSlewRate);
   private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
-
-  private final Climber m_climber = new Climber();
 
   private final SendableChooser<Command> autoChooser;
 
@@ -73,7 +70,9 @@ public class RobotContainer {
                 m_ForwardBackLimiter.calculate(m_driver.getLeftY()),
                 m_TurnLimiter.calculate(-m_driver.getRightX())),
             m_drivetrain));
-
+    //  m_shooter.setDefaultCommand(
+    //    new RunCommand(() ->  m_shooter.stop(), m_shooter)
+    //  );
     m_autonomousCommand =  new Shoot(m_shooter).withTimeout(2).andThen( new DriveForTime(m_drivetrain, -.5, 2));
 
     // Build an auto chooser. This will use Commands.none() as the default option.
@@ -110,18 +109,15 @@ public class RobotContainer {
   private void initializeShooterControls() {
     // Connect the buttons to commands
     m_driver.start().onTrue(new InstantCommand(() -> m_drivetrain.invertControls()));
-    m_operator.x().whileTrue(new Shoot(m_shooter).handleInterrupt(() -> m_shooter.stop()));
-    m_operator.y().whileTrue(new InstantCommand(() -> m_shooter.intake()).handleInterrupt(() -> m_shooter.stop()));
-    m_operator.b().onTrue(new InstantCommand(() -> m_shooter.stop()));
-    m_operator.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5).handleInterrupt(() -> m_shooter.stop()));
+    m_driver.x().whileTrue(new Shoot(m_shooter));
+   // m_driver.x().whileTrue(new RunCommand(() -> m_shooter.shoot(),m_shooter));
+    m_driver.y().whileTrue(new RunCommand(() -> m_shooter.intake(),m_shooter).withName("Intake").finallyDo(() -> m_shooter.stop()));
+    m_driver.b().onTrue(new RunCommand(() -> m_shooter.stop(),m_shooter).withName("Stop"));
+    m_driver.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
 
-    // climber init
-    m_operator.povUp().whileTrue(new InstantCommand(() -> m_climber.up()));
-    m_operator.povUp().onFalse(new InstantCommand(() -> m_climber.stop()));
-    m_operator.povDown().whileTrue(new InstantCommand(() -> m_climber.down()));
-    m_operator.povDown().onFalse(new InstantCommand(() -> m_climber.stop()));
+
   }
 
   /**
