@@ -19,10 +19,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.Shoot;
-import frc.robot.commands.AmpShoot;
-import frc.robot.commands.DriveForTime;
-import frc.robot.commands.TankDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 
@@ -44,9 +40,7 @@ public class RobotContainer {
  // private final CommandXboxController m_operator = new CommandXboxController(1);
 
   private final Command m_autonomousCommand;
-  private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
-      Constants.DriveConstants.kForwardBackSlewRate);
-  private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
+
 
   private final SendableChooser<Command> autoChooser;
 
@@ -64,16 +58,11 @@ public class RobotContainer {
     /**
      * Decide if you want to use Arcade drive
      */
-    m_drivetrain.setDefaultCommand(
-        new RunCommand(
-            () -> m_drivetrain.arcadeDrive(
-                m_ForwardBackLimiter.calculate(m_driver.getLeftY()),
-                m_TurnLimiter.calculate(-m_driver.getRightX())),
-            m_drivetrain));
-    //  m_shooter.setDefaultCommand(
-    //    new RunCommand(() ->  m_shooter.stop(), m_shooter)
-    //  );
-    m_autonomousCommand =  new Shoot(m_shooter).withTimeout(2).andThen( new DriveForTime(m_drivetrain, -.5, 2));
+    m_drivetrain.setDefaultCommand(m_drivetrain.getDriveCommand(m_driver::getLeftY,m_driver::getRightX));
+       
+    m_shooter.setDefaultCommand(m_shooter.getStopCommand());
+ 
+    m_autonomousCommand =  new WaitCommand(1);//m_shooter.getShootCommand().withTimeout(2).andThen( new DriveForTime(m_drivetrain, -.5, 2));
 
     // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -108,12 +97,12 @@ public class RobotContainer {
    */
   private void initializeShooterControls() {
     // Connect the buttons to commands
-    m_driver.start().onTrue(new InstantCommand(() -> m_drivetrain.invertControls()));
-    m_driver.x().whileTrue(new Shoot(m_shooter));
+    m_driver.start().onTrue(m_drivetrain.getInvertControlsCommand());
+    m_driver.x().whileTrue(m_shooter.getShootWhenReadyCommands());
    // m_driver.x().whileTrue(new RunCommand(() -> m_shooter.shoot(),m_shooter));
-    m_driver.y().whileTrue(new RunCommand(() -> m_shooter.intake(),m_shooter).withName("Intake").finallyDo(() -> m_shooter.stop()));
-    m_driver.b().onTrue(new RunCommand(() -> m_shooter.stop(),m_shooter).withName("Stop"));
-    m_driver.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5));
+    m_driver.y().whileTrue(m_shooter.getIntakeCommand());
+    m_driver.b().onTrue(m_shooter.getStopCommand());
+   // m_driver.a().whileTrue(new AmpShoot(m_shooter).withTimeout(5));
     SmartDashboard.putNumber("TopShooterMotor", 100.0);
     SmartDashboard.putNumber("BottomShooterMotor", 100.0);
 
@@ -134,9 +123,9 @@ public class RobotContainer {
   public void namedCommand() {
     NamedCommands.registerCommand("Shoot",
         new SequentialCommandGroup(
-            new InstantCommand(m_shooter::shoot),
+            m_shooter.getShootCommand(),
             new WaitCommand(1.2),
-            new InstantCommand(m_shooter::stop)));
+            m_shooter.getStopCommand()));
   }
 
 }

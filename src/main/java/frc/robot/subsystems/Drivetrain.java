@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -12,6 +14,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -31,6 +34,8 @@ import frc.robot.Robot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -62,7 +67,9 @@ public class Drivetrain extends SubsystemBase {
     Constants.DriveConstants.kV,
     Constants.DriveConstants.kA
   );
-
+  private final SlewRateLimiter m_ForwardBackLimiter = new SlewRateLimiter(
+      Constants.DriveConstants.kForwardBackSlewRate);
+  private final SlewRateLimiter m_TurnLimiter = new SlewRateLimiter(Constants.DriveConstants.kTurnSlewRate);
   /** Create a new drivetrain subsystem. */
   public Drivetrain() {
     super();
@@ -138,6 +145,31 @@ public class Drivetrain extends SubsystemBase {
     );
   }
 
+  /**
+   * Default Drive command to Drive the robot with Arcade controls
+   * @param speed
+   * @param rotation
+   * @return 
+   */
+  public Command getDriveCommand(DoubleSupplier speed, DoubleSupplier rotation){
+    return this.startEnd(
+      () -> this.arcadeDrive(
+        m_ForwardBackLimiter.calculate(speed.getAsDouble()),
+        m_TurnLimiter.calculate(rotation.getAsDouble())),
+      () -> this.stop()).withName("ArcadeDrive");
+  }
+
+  /**
+   * Invert Drivetrain command to Drive the robot with Arcade controls
+   * @param speed
+   * @param rotation
+   * @return 
+   */
+  public Command getInvertControlsCommand(){
+    return new InstantCommand(this::invertControls).withName("InvertDriverControls");
+  }
+
+    
   /** The log method puts interesting information to the SmartDashboard. */
   public void log() {
     SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition());
@@ -153,14 +185,14 @@ public class Drivetrain extends SubsystemBase {
    * @param left  Speed in range [-1,1]
    * @param right Speed in range [-1,1]
    */
-  public void drive(double left, double right) {
+  private void drive(double left, double right) {
     m_drive.tankDrive(left, right);
   }
 
-  
+
   /*Method to control the drivetrain using arcade drive. Arcade drive takes a speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses these to control the drivetrain motors */
-  public void arcadeDrive(double speed, double rotation) {
+  private void arcadeDrive(double speed, double rotation) {
 
     if (invertDriverControls){
     m_drive.arcadeDrive(-speed, -rotation);
@@ -185,6 +217,9 @@ public class Drivetrain extends SubsystemBase {
 
   }
 
+  private void stop(){
+    this.drive(0.0,0.0);
+  }
   /**
    * Get the robot's heading.
    *

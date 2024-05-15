@@ -45,7 +45,15 @@ public final class Constants {
     public static final double kA = 0.12011;
     public static final double kP =0.7;
     public static final double kD =0.0;
-
-  
   }
+
+   public static final class ShooterConstants {
+
+    public static double kFlywheelMotorShootSpeed = 1.0;
+    public static double kTriggerMotorShootSpeed = 1.0;
+    public static double kFlywheelMotorIntakeSpeed = -0.25;
+    public static double kTriggerMotorIntakeSpeed = -0.25;
+    public static double kShooterVelocity = 5000;
+
+   }
 }
