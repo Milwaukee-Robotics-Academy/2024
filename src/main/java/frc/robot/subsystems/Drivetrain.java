@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -152,11 +153,11 @@ public class Drivetrain extends SubsystemBase {
    * @return 
    */
   public Command getDriveCommand(DoubleSupplier speed, DoubleSupplier rotation){
-    return this.startEnd(
+    return new RunCommand(
       () -> this.arcadeDrive(
         m_ForwardBackLimiter.calculate(speed.getAsDouble()),
         m_TurnLimiter.calculate(rotation.getAsDouble())),
-      () -> this.stop()).withName("ArcadeDrive");
+      this).withName("ArcadeDrive");
   }
 
   /**

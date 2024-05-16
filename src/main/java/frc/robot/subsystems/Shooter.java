@@ -14,6 +14,7 @@ import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -60,7 +61,7 @@ public class Shooter extends SubsystemBase {
    * @return
    */
   public Command getShooterWarmupCommand(){
-    return new InstantCommand(this::warmup, this).withName("Warmup");
+    return new RunCommand(this::warmup, this).withName("Warmup");
   }
 
   /**
@@ -68,9 +69,9 @@ public class Shooter extends SubsystemBase {
    * @return
    */
   public Command getShootCommand(){
-    return this.startEnd(
+    return new RunCommand(
       this::shoot,
-      this::stop
+      this
       ).withName("Shoot");
   }
 
