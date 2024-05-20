@@ -10,9 +10,12 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -74,6 +77,23 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+        // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command initialized", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command interrupted", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command finished", command.getName(), EventImportance.kNormal));
   }
 
   /**
