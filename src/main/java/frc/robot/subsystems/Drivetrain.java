@@ -204,11 +204,17 @@ public class Drivetrain extends SubsystemBase {
     tankDriveVolts(m_kinematics.toChassisSpeeds(wheelSpeeds));
   }
 
-  /*
+  /**
    * Method to control the drivetrain using arcade drive. Arcade drive takes a
    * speed in the X (forward/back) direction
    * and a rotation about the Z (turning the robot about it's center) and uses
    * these to control the drivetrain motors
+   *    
+   * @param xSpeed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.
+   * @param zRotation The robot's rotation rate around the Z axis [-1.0..1.0]. Counterclockwise is
+   *     positive.
+   * @param squareInputs If set, decreases the input sensitivity at low speeds.
+
    */
   public void arcadeDrive(double speed, double rotation) {
 

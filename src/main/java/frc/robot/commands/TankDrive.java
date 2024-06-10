@@ -12,15 +12,20 @@ import frc.robot.subsystems.Drivetrain;
 
 public class TankDrive extends Command {
 
-  DoubleSupplier speedSupplier;
-  DoubleSupplier angleSUpplier;
+  DoubleSupplier m_leftSpeed;
+  DoubleSupplier m_rightSpeed;
   Drivetrain m_drivetrain;
   
-  /** Creates a new ArcadeDrive. */
-  public TankDrive(DoubleSupplier speed, DoubleSupplier angle, Drivetrain drivetrain) {
+  /** Creates a new TankDrive command. 
+   *   
+   * @param left  Speed in range [-1,1]
+   * @param right Speed in range [-1,1]
+   * @param drivetrain susbystem used.
+  */
+  public TankDrive(DoubleSupplier left, DoubleSupplier right, Drivetrain drivetrain) {
 
-    speedSupplier = speed;
-    angleSUpplier = angle;
+    m_leftSpeed = left;
+    m_rightSpeed = right;
     m_drivetrain = drivetrain;
     addRequirements(m_drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -34,7 +39,7 @@ public class TankDrive extends Command {
   @Override
   public void execute() {
 
-    m_drivetrain.tankDrive(speedSupplier.getAsDouble(), angleSUpplier.getAsDouble());
+    m_drivetrain.tankDrive(m_leftSpeed.getAsDouble(), m_rightSpeed.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

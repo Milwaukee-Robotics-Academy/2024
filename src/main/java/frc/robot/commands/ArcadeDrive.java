@@ -16,7 +16,13 @@ public class ArcadeDrive extends Command {
   DoubleSupplier angleSUpplier;
   Drivetrain m_drivetrain;
   
-  /** Creates a new ArcadeDrive. */
+  /** Creates a new ArcadeDrive. 
+   *
+   * @param speed The robot's speed along the X axis [-1.0..1.0]. Forward is positive.
+   * @param angle The robot's rotation rate around the Z axis [-1.0..1.0]. Counterclockwise is
+   *     positive.
+   * @param drivetrain the subsystem used.
+   */
   public ArcadeDrive(DoubleSupplier speed, DoubleSupplier angle, Drivetrain drivetrain) {
 
     speedSupplier = speed;
